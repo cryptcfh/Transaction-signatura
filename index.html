@@ -77,16 +77,29 @@
 
   <script>
     const status = document.getElementById("signature-status");
-    const signatureInput = document.getElementById("signature");
     const documentBox = document.getElementById("document");
+    const signatureInput = document.getElementById("signature");
     const button = document.querySelector("button");
+    const timerElement = document.getElementById("timer");
 
-    const expireAt = Date.now() + 28800 * 1000; // 8 hours
+    const EXPIRY_KEY = "doc_expire_at";
+    const EXPIRY_DURATION = 28800 * 1000; // 8 hours in milliseconds
+
+    // Get or create the expiration timestamp
+    function getOrSetExpiration() {
+      let expireAt = localStorage.getItem(EXPIRY_KEY);
+      if (!expireAt) {
+        expireAt = Date.now() + EXPIRY_DURATION;
+        localStorage.setItem(EXPIRY_KEY, expireAt);
+      }
+      return parseInt(expireAt);
+    }
+
+    const expireAt = getOrSetExpiration();
 
     function updateTimer() {
       const now = Date.now();
       const remaining = Math.floor((expireAt - now) / 1000);
-      const timerElement = document.getElementById("timer");
 
       if (remaining <= 0) {
         documentBox.innerHTML = "<p class='expired'>⛔ Document has expired and is no longer available.</p>";
